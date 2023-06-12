@@ -1,0 +1,5 @@
+/target
+
+/src/translations/*.json
+/src/translations/source/*.json
+/src/translations/dest/*.json
