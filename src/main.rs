@@ -49,7 +49,7 @@ fn clean_google_translate_errors(file_line: String) -> String {
 
     // Now, this fix checks if the 2nd to last character is a punctuation AND the third to last character is a ", if this is the case, then swap their positions. This assumes EOL-1 is a ,
     // i.e. "... "!, -> "... !",
-    // Naive implementation as it only covers a few of the most common punctionations, latin-originating and greek, and only l->r language coverage.
+    // Naive implementation as it only covers a few of the most common punctuations, latin-originating and greek, and only l->r language coverage.
     let punctuation = vec!['!', '?', ',', '.', '¿', ';', ':', '·', '¡'];
 
     if working_line.len() > 2 {
