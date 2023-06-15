@@ -43,8 +43,11 @@ fn clean_google_translate_errors(file_line: String) -> String {
     // or maybe it was suppose to be ...
     // "word": "secondword actualaftersplit perhapsthis too",
     // Only an actual human-reader with language context could know. So just pop it after first space and let the post-computation reviews handle errors.
-    if !working_line.contains(": ") && !(working_line.eq("{") || working_line.eq("}")) {
-        working_line = working_line.replacen(" ", ": ", 1);
+    if !working_line.eq("")
+        && !working_line.contains(": ")
+        && !(working_line.contains("{") || working_line.contains("}"))
+    {
+        working_line = working_line.replacen(" ", ": \"", 1);
     }
 
     // Now, this fix checks if the 2nd to last character is a punctuation AND the third to last character is a ", if this is the case, then swap their positions. This assumes EOL-1 is a ,
@@ -55,15 +58,21 @@ fn clean_google_translate_errors(file_line: String) -> String {
     if working_line.len() > 2 {
         let start_pos = working_line.chars().count() - 3;
         let end_pos = working_line.chars().count() - 2;
-
         let second_to_last: char = working_line.chars().nth(end_pos).unwrap();
         let third_to_last: char = working_line.chars().nth(start_pos).unwrap();
 
         if third_to_last == '"' && punctuation.contains(&second_to_last) {
-            let swapped: String = [second_to_last.to_string(), third_to_last.to_string()].join("");
-            working_line.replace_range(start_pos..end_pos, &swapped);
+            let swapped: String = [
+                second_to_last.to_string(),
+                third_to_last.to_string(),
+                String::from(","),
+            ]
+            .join("");
+            working_line.truncate(working_line.len() - 3);
+            working_line = [working_line, swapped].join("");
         }
     }
+
     return working_line;
 }
 
@@ -124,8 +133,9 @@ fn main() {
 
         for line in source_file_content {
             let mut postfix: String = String::new();
+            let cleaned_line = clean_google_translate_errors(line);
 
-            match line.split_once(':') {
+            match cleaned_line.split_once(':') {
                 Some((_, post)) => {
                     postfix = String::from(post);
                 }
