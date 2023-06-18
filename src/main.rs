@@ -33,7 +33,7 @@ fn clean_google_translate_errors(file_line: String) -> String {
 
     let mut working_line: String = file_line;
     working_line = String::from(working_line.trim());
-    //
+
     // If ": " is not in line, insert where first space is. This is not a complete solution, but best guess under circumstances.
     // This is because there's a chance that the left-side is translated into multiple words, perhaps along with the right side.
     // This would leave a situation where...
@@ -54,12 +54,12 @@ fn clean_google_translate_errors(file_line: String) -> String {
     // i.e. "... "!, -> "... !",
     // Naive implementation as it only covers a few of the most common punctuations, latin-originating and greek, and only l->r language coverage.
     let punctuation = vec!['!', '?', ',', '.', '¿', ';', ':', '·', '¡'];
+    let line_length = working_line.chars().count();
 
-    if working_line.len() > 2 {
-        let start_pos = working_line.chars().count() - 3;
-        let end_pos = working_line.chars().count() - 2;
-        let second_to_last: char = working_line.chars().nth(end_pos).unwrap();
-        let third_to_last: char = working_line.chars().nth(start_pos).unwrap();
+    if line_length > 2 {
+        let mut characters: std::str::Chars<'_> = working_line.chars();
+        let third_to_last: char = characters.nth(line_length - 3).unwrap(); // We know there will always be a char available, so unwrap safe.
+        let second_to_last: char = characters.next().unwrap(); // iterator already up to target-1, so simply reusing at position + next saves from having to generate another iterator from start.
 
         if third_to_last == '"' && punctuation.contains(&second_to_last) {
             let swapped: String = [
